@@ -6,6 +6,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zadanie 1</title>
+    <style>
+        #btnSubmit {
+            border: 2px solid black;
+        }
+
+        input:valid {
+            border: 2px solid green;
+        }
+
+        input:invalid {
+            border: 2px solid red;
+        }
+    </style>
 </head>
 
 <body>
@@ -25,8 +38,8 @@
         <label for="path">Path (b):</label>
         <input type="text" id="path" name="path" pattern="^[A-Z]:\\((\b[Ww][Ii][Nn][Dd][Oo][Ww][Ss]\b)|(\b[Ww][Ii][Nn][Nn][Tt]\b)|(\b[Ww][Ii][Nn]\b)|(\[Bb][Dd][Oo][Ss]\b)|(\b[Mm][Ss][Dd][Oo][Ss]\b)){1}(\\[A-z]*)?$" placeholder="C:\WinDows\temp"><br><br>
         <label for="upath">Unix path:</label>
-        <input type="text" id="upath" name="upath" pattern="^(/)?([^/\0]+(/)?)+$" placeholder="/etc/hosts"><br><br>
-        <input type="submit" value="Submit">
+        <input type="text" id="upath" name="upath" pattern="^\/etc\/[A-Za-z]*$" placeholder="/etc/hosts"><br><br>
+        <input id="btnSubmit" type="submit" value="Submit">
     </form>
 </body>
 
