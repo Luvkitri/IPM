@@ -20,6 +20,12 @@
         <input type="text" id="ipv4" name="ipv4" pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$" placeholder="192.168.1.1"><br><br>
         <label for="www">www:</label>
         <input type="url" id="www" name="www" placeholder="google.com"><br><br>
+        <label for="path">Path (a):</label>
+        <input type="text" id="path" name="path" pattern="^[A-Z]:\\((\bwindows\b)|(\bwinnt\b)|(\bwin\b)|(\bdos\b)|(\bmsdos\b)):\\[a-z]+$" placeholder="C:\windows\temp"><br><br>
+        <label for="path">Path (b):</label>
+        <input type="text" id="path" name="path" pattern="^[A-Z]:\\(((?i)\bwindows\b)|((?i)\bwinnt\b)|((?i)\bwin\b)|((?i)\bdos\b)|((?i)\bmsdos\b)):\\[a-z]+$" placeholder="C:\WinDows\temp"><br><br>
+        <label for="upath">Unix path:</label>
+        <input type="text" id="upath" name="upath" pattern="^(/)?([^/\0]+(/)?)+$" placeholder="/etc/hosts"><br><br>
         <input type="submit" value="Submit">
     </form>
 </body>
