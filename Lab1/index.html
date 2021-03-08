@@ -39,7 +39,11 @@
         <input type="text" id="path" name="path" pattern="^[A-Z]:\\((\b[Ww][Ii][Nn][Dd][Oo][Ww][Ss]\b)|(\b[Ww][Ii][Nn][Nn][Tt]\b)|(\b[Ww][Ii][Nn]\b)|(\[Bb][Dd][Oo][Ss]\b)|(\b[Mm][Ss][Dd][Oo][Ss]\b)){1}(\\[A-z]*)?$" placeholder="C:\WinDows\temp"><br><br>
         <label for="upath">Unix path:</label>
         <input type="text" id="upath" name="upath" pattern="^\/etc\/[A-Za-z]*$" placeholder="/etc/hosts"><br><br>
+        <label for="ipv6">Ipv6:</label>
+        <input type="text" id="ipv6" name="ipv6" pattern="^([a-f0-9:]+:+)+[a-f0-9]+$" placeholder="2001:db8::8a2e:370:7334"><br><br>
+        
         <input id="btnSubmit" type="submit" value="Submit">
+        
     </form>
 </body>
 
