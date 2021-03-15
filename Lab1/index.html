@@ -36,7 +36,7 @@
         <input type="text" id="ipv4" name="ipv4" pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
             placeholder="192.168.1.1"><br><br>
         <label for="www">www:</label>
-        <input type="text" id="www" name="www" pattern="[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)"
+        <input type="text" id="www" name="www" pattern="^\w*?\.\w{2,3}[\/\?]\S*$"
             placeholder="google.com"><br><br>
         <label for="path">Path (a):</label>
         <input type="text" id="path" name="path" pattern="^([A-Z]:\\)(windows|winnt|win|dos|msdos)(\\[a-z]+)?$"
@@ -53,7 +53,6 @@
         <label for="phone">Phone number:</label>
         <input type="tel" id="phone" name="phone" pattern="[0-9]{3}-[0-9]{3}-[0-9]{3}"
             placeholder="123-321-312"><br><br>
-        <input id="btnSubmit" type="submit" value="Submit">
     </form>
 </body>
 
