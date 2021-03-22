@@ -1,12 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=0.5, maximum-scale=0.5"
+    />
     <title>Zadanie 3</title>
-</head>
-<body>
-    
-</body>
+  </head>
+  <body>
+    <div style="text-align: center">
+      <button onclick=""></button>
+      <canvas
+        id="myCanvas"
+        width="800"
+        height="600"
+        style="border: 1px solid #d3d3d3"
+      >
+        Your browser does not support the HTML canvas tag.</canvas
+      >
+    </div>
+
+    <script>
+      let canvas = document.getElementById("canvas");
+      let ctx = canvas.getContext("2d");
+
+      let colors = ["blue", "green", "red", "yellow", "purple"];
+      let rectangles = [];
+
+      class Rectangle {
+        constructor(color) {
+          this.width = Math.floor(Math.random() * Math.floor(100)) + 10;
+          this.height = Math.floor(Math.random() * Math.floor(100)) + 10;
+          this.x = Math.floor(Math.random() * Math.floor(700)) + 100;
+          this.y = Math.floor(Math.random() * Math.floor(300)) + 100;
+          this.color = color;
+        }
+
+        drawRectangle() {
+          ctx.beginPath();
+          ctx.fillStyle = this.color;
+          ctx.fillRect(this.x, this.y, this.width, this.h);
+        }
+      }
+      
+      function createRectangle() {
+        rectangles.push(new Rectangle(colors[Math.floor(Math.random * colors.length)]));
+      }
+
+    </script>
+  </body>
 </html>
