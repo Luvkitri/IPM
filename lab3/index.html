@@ -8,10 +8,15 @@
       content="width=device-width, initial-scale=0.5, maximum-scale=0.5"
     />
     <title>Zadanie 3</title>
+    <style>
+      #root {
+        display: flex;
+      }
+    </style>
   </head>
   <body>
-    <div style="text-align: center">
-      <button onclick=""></button>
+    <div id="root">
+      <button onclick="createRectangle()">Add Rectangle</button>
       <canvas
         id="myCanvas"
         width="800"
@@ -23,32 +28,144 @@
     </div>
 
     <script>
-      let canvas = document.getElementById("canvas");
+      let canvas = document.getElementById("myCanvas");
       let ctx = canvas.getContext("2d");
 
       let colors = ["blue", "green", "red", "yellow", "purple"];
       let rectangles = [];
 
+      let drag = false;
+      let dragHoldX, dragHoldY, dragIndex;
+      let mouseX, mouseY;
+
+      window.onload = init;
+      canvas.addEventListener("mousedown", mouseDown, false);
+
       class Rectangle {
         constructor(color) {
-          this.width = Math.floor(Math.random() * Math.floor(100)) + 10;
-          this.height = Math.floor(Math.random() * Math.floor(100)) + 10;
-          this.x = Math.floor(Math.random() * Math.floor(700)) + 100;
-          this.y = Math.floor(Math.random() * Math.floor(300)) + 100;
+          this.x = Math.floor(Math.random() * Math.floor(500)) + 200;
+          this.y = Math.floor(Math.random() * Math.floor(200)) + 10;
+          this.width = 100;
+          this.height = 100;
           this.color = color;
         }
 
         drawRectangle() {
           ctx.beginPath();
           ctx.fillStyle = this.color;
-          ctx.fillRect(this.x, this.y, this.width, this.h);
+          ctx.fillRect(this.x, this.y, this.width, this.height);
         }
       }
-      
+
       function createRectangle() {
-        rectangles.push(new Rectangle(colors[Math.floor(Math.random * colors.length)]));
+        rectangles.push(
+          new Rectangle(colors[Math.floor(Math.random() * colors.length)])
+        );
       }
 
+      function drawRectangles() {
+        rectangles.forEach((rectangle) => {
+          rectangle.drawRectangle();
+        });
+      }
+
+      function drawPlatform() {
+        ctx.beginPath();
+        ctx.fillStyle = 'black';
+        ctx.fillRect(this.x, this.y, 640, 50);
+      }
+
+      function mouseDown(e) {
+        let bRect = canvas.getBoundingClientRect();
+        mouseX = e.clientX - bRect.left;
+        mouseY = e.clientY - bRect.top;
+
+        for (let i = 0; i < rectangles.length; i++) {
+          if (inRectangle(rectangles[i], mouseX, mouseY)) {
+            drag = true;
+            dragHoldX = mouseX - rectangles[i].x;
+            dragHoldY = mouseY - rectangles[i].y;
+            dragIndex = i;
+          }
+        }
+
+        if (drag) {
+          window.addEventListener("mousemove", mouseMove, false);
+        }
+
+        canvas.removeEventListener("mousedown", mouseDown, false);
+        window.addEventListener("mouseup", mouseUp, false);
+
+        return false;
+      }
+
+      function mouseMove(e) {
+        let posX, posY;
+        let height = rectangles[dragIndex].height;
+        let width = rectangles[dragIndex].width;
+        let minX = width / 2;
+        let maxX = canvas.width - width / 2;
+        let minY = height / 2;
+        let maxY = canvas.height - height / 2;
+
+        let bRect = canvas.getBoundingClientRect();
+        mouseX = e.clientX - bRect.left;
+        mouseY = e.clientY - bRect.top;
+
+        posX = mouseX - dragHoldX;
+        posX = posX < minX ? minX : posX > maxX ? maxX : posX;
+        posY = mouseY - dragHoldY;
+        posY = posY < minY ? minY : posY > maxY ? maxY : posY;
+
+        rectangles[dragIndex].x = posX;
+        rectangles[dragIndex].y = posY;
+      }
+
+      function mouseUp() {
+        canvas.addEventListener("mousedown", mouseDown, false);
+        window.removeEventListener("mouseup", mouseUp, false);
+
+        if (drag) {
+          drag = false;
+          window.removeEventListener("mousemove", mouseMove, false);
+        }
+      }
+
+      function inRectangle(rectangle, mouseX, mouseY) {
+        let isInRectangle = false;
+
+        for (let i = 0; i < rectangles.length; i++) {
+          let left = rectangles[i].x;
+          let right = rectangles[i].x + rectangles[i].width;
+          let top = rectangles[i].y;
+          let bottom = rectangles[i].y + rectangles[i].height;
+
+          if (
+            right >= mouseX &&
+            left <= mouseX &&
+            bottom >= mouseY &&
+            top <= mouseY
+          ) {
+            isInRectangle = true;
+          }
+        }
+
+        return isInRectangle;
+      }
+
+      // Init function
+      function init() {
+        requestAnimationFrame(animate);
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw Elements
+        drawRectangles();
+
+        requestAnimationFrame(animate);
+      }
     </script>
   </body>
 </html>
