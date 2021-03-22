@@ -42,11 +42,11 @@
       canvas.addEventListener("mousedown", mouseDown, false);
 
       class Rectangle {
-        constructor(color) {
-          this.x = Math.floor(Math.random() * Math.floor(500)) + 200;
-          this.y = Math.floor(Math.random() * Math.floor(200)) + 10;
-          this.width = 100;
-          this.height = 100;
+        constructor(x, y, width, height, color) {
+          this.x = x;
+          this.y = y;
+          this.width = width;
+          this.height = height;
           this.color = color;
         }
 
@@ -59,7 +59,13 @@
 
       function createRectangle() {
         rectangles.push(
-          new Rectangle(colors[Math.floor(Math.random() * colors.length)])
+          new Rectangle(
+            Math.floor(Math.random() * Math.floor(500)) + 200,
+            Math.floor(Math.random() * Math.floor(200)) + 10,
+            100,
+            100,
+            colors[Math.floor(Math.random() * colors.length)]
+          )
         );
       }
 
@@ -69,11 +75,7 @@
         });
       }
 
-      function drawPlatform() {
-        ctx.beginPath();
-        ctx.fillStyle = "black";
-        ctx.fillRect(80, 550, canvas.width * 0.8, 50);
-      }
+      let platform = new Rectangle(80, 550, canvas.width * 0.8, 50, "black");
 
       function mouseDown(e) {
         let bRect = canvas.getBoundingClientRect();
@@ -103,10 +105,10 @@
         let posX, posY;
         let height = rectangles[dragIndex].height;
         let width = rectangles[dragIndex].width;
-        let minX = width / 2;
-        let maxX = canvas.width - width / 2;
-        let minY = height / 2;
-        let maxY = canvas.height - height / 2;
+        let minX = 0;
+        let maxX = canvas.width - width;
+        let minY = 0;
+        let maxY = canvas.height - height;
 
         let bRect = canvas.getBoundingClientRect();
         mouseX = e.clientX - bRect.left;
@@ -117,8 +119,16 @@
         posY = mouseY - dragHoldY;
         posY = posY < minY ? minY : posY > maxY ? maxY : posY;
 
+        if (!rectangleCollision(rectangles[dragIndex])) {
+          rectangles[dragIndex].x = posX;
+          rectangles[dragIndex].y = posY;
+        }
+
         rectangles[dragIndex].x = posX;
-        rectangles[dragIndex].y = posY;
+
+        if (posY < rectangles[dragIndex].y) {
+          rectangles[dragIndex].y = posY;
+        }
       }
 
       function mouseUp() {
@@ -151,6 +161,19 @@
         return isInRectangle;
       }
 
+      function rectangleCollision(rectangle) {
+        if (
+          rectangle.x < platform.x + platform.width &&
+          rectangle.x + rectangle.width > platform.x &&
+          rectangle.y < platform.y + platform.height &&
+          rectangle.y + rectangle.height > platform.y
+        ) {
+          return true;
+        }
+
+        return false;
+      }
+
       // Init function
       function init() {
         requestAnimationFrame(animate);
@@ -161,7 +184,7 @@
 
         // Draw Elements
         drawRectangles();
-        drawPlatform();
+        platform.drawRectangle();
 
         requestAnimationFrame(animate);
       }
