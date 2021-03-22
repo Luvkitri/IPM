@@ -108,7 +108,7 @@
         let minX = 0;
         let maxX = canvas.width - width;
         let minY = 0;
-        let maxY = canvas.height - height;
+        let maxY = canvas.height - height - platform.height;
 
         let bRect = canvas.getBoundingClientRect();
         mouseX = e.clientX - bRect.left;
@@ -119,16 +119,8 @@
         posY = mouseY - dragHoldY;
         posY = posY < minY ? minY : posY > maxY ? maxY : posY;
 
-        if (!rectangleCollision(rectangles[dragIndex])) {
-          rectangles[dragIndex].x = posX;
-          rectangles[dragIndex].y = posY;
-        }
-
         rectangles[dragIndex].x = posX;
-
-        if (posY < rectangles[dragIndex].y) {
-          rectangles[dragIndex].y = posY;
-        }
+        rectangles[dragIndex].y = posY;
       }
 
       function mouseUp() {
@@ -161,18 +153,18 @@
         return isInRectangle;
       }
 
-      function rectangleCollision(rectangle) {
-        if (
-          rectangle.x < platform.x + platform.width &&
-          rectangle.x + rectangle.width > platform.x &&
-          rectangle.y < platform.y + platform.height &&
-          rectangle.y + rectangle.height > platform.y
-        ) {
-          return true;
-        }
+      // function rectangleCollision(rectangle) {
+      //   if (
+      //     rectangle.x < platform.x + platform.width &&
+      //     rectangle.x + rectangle.width > platform.x &&
+      //     rectangle.y < platform.y + platform.height &&
+      //     rectangle.y + rectangle.height > platform.y
+      //   ) {
+      //     return true;
+      //   }
 
-        return false;
-      }
+      //   return false;
+      // }
 
       // Init function
       function init() {
