@@ -17,14 +17,13 @@
 
 <body>
     <h2>Click on number to move list element</h2>
-    <ol id="list">
-        <li class="dropzone" id='0' draggable="true" contenteditable="true">List item 1</li>
-        <li class="dropzone" id='1' draggable="true" contenteditable="true">List item 2</li>
-        <li class="dropzone" id='2' draggable="true" contenteditable="true">List item 3</li>
-        <li class="dropzone" id='3' draggable="true" contenteditable="true">List item 4</li>
-        <li class="dropzone" id='4' draggable="true" contenteditable="true">List item 5</li>
+    <ol id="list" contenteditable="true">
+        <li class="dropzone" id='0' draggable="true">List item 1</li>
+        <li class="dropzone" id='1' draggable="true">List item 2</li>
+        <li class="dropzone" id='2' draggable="true">List item 3</li>
+        <li class="dropzone" id='3' draggable="true">List item 4</li>
+        <li class="dropzone" id='4' draggable="true">List item 5</li>
     </ol>
-    <button onclick="addElement()">Add new list element</button>
     <script>
         let dragged;
         let id;
@@ -63,41 +62,6 @@
                 }
             }
         });
-
-        window.onload = init();
-
-        function init() {
-            let list = document.getElementsByTagName("li");
-            console.log(list);
-            
-
-            Array.from(list).forEach(li => {
-                var removeBtn = document.createElement("input");
-                removeBtn.type = "button";
-                removeBtn.value = "Remove";
-                removeBtn.onclick = remove;
-                li.appendChild(removeBtn);
-            });
-        }
-
-        function addElement(list) {
-            var li = document.createElement("li");
-            li.class = "dropzone";
-            li.draggable = "true";
-            li.contentEditable = "true";
-            document.getElementById("list").appendChild(li).textContent = 'New Item';
-
-            var removeBtn = document.createElement("input");
-            removeBtn.type = "button";
-            removeBtn.value = "Remove";
-            removeBtn.onclick = remove;
-            li.appendChild(removeBtn);
-        }
-
-        function remove(e) {
-            var el = e.target;
-            el.parentNode.remove();
-        }
     </script>
 </body>
 
