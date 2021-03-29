@@ -9,22 +9,45 @@
     />
     <title>Zadanie 3</title>
     <style>
+      body {
+        height: 100%;
+        margin: 0px;
+        padding: 0px;
+        overflow: hidden;
+      }
+
       #root {
         display: flex;
+        flex-flow: row nowrap;
+        justify-content: flex-start;
+        align-items: stretch;
+        align-content: stretch;
+      }
+
+      #buttonArea {
+        flex: 0 0 20%;
+      }
+
+      #canvasArea {
+        flex: 0 0 80%;
+      }
+
+      button {
+        width: 100%;
+        height: 100%;
       }
     </style>
   </head>
   <body>
     <div id="root">
-      <button onclick="createRectangle()">Add Rectangle</button>
-      <canvas
-        id="myCanvas"
-        width="800"
-        height="600"
-        style="border: 1px solid #d3d3d3"
-      >
-        Your browser does not support the HTML canvas tag.</canvas
-      >
+      <div id="buttonArea">
+        <button onclick="createRectangle()">Add Rectangle</button>
+      </div>
+      <div id="canvasArea">
+        <canvas id="myCanvas">
+          Your browser does not support the HTML canvas tag.
+        </canvas>
+      </div>
     </div>
 
     <script>
@@ -37,9 +60,25 @@
       let drag = false;
       let dragHoldX, dragHoldY, dragIndex;
       let mouseX, mouseY;
+      let previousMouseX, previousMouseY;
 
       window.onload = init;
       canvas.addEventListener("mousedown", mouseDown, false);
+      window.addEventListener("resize", resizeCanvas, false);
+      let platform;
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth - window.innerWidth * 0.2;
+        canvas.height = window.innerHeight;
+
+        platform = new Rectangle(
+          0,
+          canvas.height - 50,
+          canvas.width,
+          50,
+          "black"
+        );
+      }
 
       class Rectangle {
         constructor(x, y, width, height, color) {
@@ -60,8 +99,8 @@
       function createRectangle() {
         rectangles.push(
           new Rectangle(
-            Math.floor(Math.random() * Math.floor(500)) + 200,
-            Math.floor(Math.random() * Math.floor(200)) + 10,
+            Math.floor(Math.random() * Math.floor(canvas.width - 100)) + 100,
+            Math.floor(Math.random() * Math.floor(canvas.height - 300)) + 100,
             100,
             100,
             colors[Math.floor(Math.random() * colors.length)]
@@ -74,8 +113,6 @@
           rectangle.drawRectangle();
         });
       }
-
-      let platform = new Rectangle(0, canvas.height - 50, canvas.width, 50, "black");
 
       function mouseDown(e) {
         let bRect = canvas.getBoundingClientRect();
@@ -114,13 +151,29 @@
         mouseX = e.clientX - bRect.left;
         mouseY = e.clientY - bRect.top;
 
+        if (previousMouseX === mouseX && previousMouseY === mouseY) {
+          return;
+        }
+
         posX = mouseX - dragHoldX;
         posX = posX < minX ? minX : posX > maxX ? maxX : posX;
         posY = mouseY - dragHoldY;
         posY = posY < minY ? minY : posY > maxY ? maxY : posY;
 
+        for (let i = 0; i < rectangles.length; i++) {
+          if (i !== dragIndex) {
+            if (isCollision(rectangles[dragIndex], rectangles[i])) {
+              console.log(true);
+              resolveCollision(rectangles[dragIndex], rectangles[i]);
+              return;
+            }
+          }
+        }
+        console.log(false);
         rectangles[dragIndex].x = posX;
         rectangles[dragIndex].y = posY;
+        previousMouseX = mouseX;
+        previousMouseY = mouseY
       }
 
       function mouseUp() {
@@ -153,27 +206,71 @@
         return isInRectangle;
       }
 
-      // function rectangleCollision(rectangle) {
-      //   if (
-      //     rectangle.x < platform.x + platform.width &&
-      //     rectangle.x + rectangle.width > platform.x &&
-      //     rectangle.y < platform.y + platform.height &&
-      //     rectangle.y + rectangle.height > platform.y
-      //   ) {
-      //     return true;
-      //   }
+      function isCollision(draggedRectangle, staticRectangle) {
+        if (
+          draggedRectangle.x < staticRectangle.x + staticRectangle.width &&
+          draggedRectangle.x + draggedRectangle.width > staticRectangle.x &&
+          draggedRectangle.y < staticRectangle.y + staticRectangle.height &&
+          draggedRectangle.y + draggedRectangle.height > staticRectangle.y
+        ) {
+          return true;
+        }
 
-      //   return false;
-      // }
+        return false;
+      }
+
+      function resolveCollision(draggedRectangle, staticRectangle) {
+        // Get center position of draged rectangle
+        draggedRectangleCenterX =
+          (draggedRectangle.x + draggedRectangle.width) / 2;
+        draggedRectangleCenterY =
+          (draggedRectangle.y + draggedRectangle.height) / 2;
+
+        // Get center position of static rectangle
+        staticRectangleCenterX =
+          (staticRectangle.x + staticRectangle.width) / 2;
+        staticRectangleCenterY =
+          (staticRectangle.y + staticRectangle.width) / 2;
+
+        // Get the distance between center points
+        vectorX = draggedRectangleCenterX - staticRectangleCenterX;
+        vectorY = draggedRectangleCenterY - staticRectangleCenterY;
+
+        // Average width and height
+        avgWidth = (draggedRectangle.width + staticRectangle.width) * 0.5;
+        avgHeight = (draggedRectangle.height + staticRectangle.height) * 0.5;
+
+        if (
+          Math.abs(vectorX / staticRectangle.width) >
+          Math.abs(vectorY / staticRectangle.height)
+        ) {
+          // Chceck
+          if (vectorX < 0) {
+            // Left
+            draggedRectangle.x = staticRectangle.x - draggedRectangle.width;
+          } else {
+            // Right
+            draggedRectangle.x = staticRectangle.x + staticRectangle.width;
+          }
+        } else {
+          if (vectorY < 0) {
+            // Top
+            draggedRectangle.y = staticRectangle.y - draggedRectangle.height;
+          } else {
+            // Down
+            draggedRectangle.y = staticRectangle.y + staticRectangle.height;
+          }
+        }
+      }
 
       // Init function
       function init() {
+        resizeCanvas();
         requestAnimationFrame(animate);
       }
 
       function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-
         // Draw Elements
         drawRectangles();
         platform.drawRectangle();
