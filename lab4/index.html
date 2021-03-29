@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=0.5" />
@@ -9,13 +9,13 @@
     <style>
         .container {
             display: block;
-      }
+        }
 
         .dropzone {}
     </style>
-  </head>
+</head>
 
-  <body>
+<body>
     <h2>Click on number to move list element</h2>
     <ol id="list">
         <li class="dropzone" id='0' draggable="true" contenteditable="true">List item 1</li>
@@ -64,6 +64,41 @@
             }
         });
 
-    </div>
-  </body>
+        window.onload = init();
+
+        function init() {
+            let list = document.getElementsByTagName("li");
+            console.log(list);
+            
+
+            Array.from(list).forEach(li => {
+                var removeBtn = document.createElement("input");
+                removeBtn.type = "button";
+                removeBtn.value = "Remove";
+                removeBtn.onclick = remove;
+                li.appendChild(removeBtn);
+            });
+        }
+
+        function addElement(list) {
+            var li = document.createElement("li");
+            li.class = "dropzone";
+            li.draggable = "true";
+            li.contentEditable = "true";
+            document.getElementById("list").appendChild(li).textContent = 'New Item';
+
+            var removeBtn = document.createElement("input");
+            removeBtn.type = "button";
+            removeBtn.value = "Remove";
+            removeBtn.onclick = remove;
+            li.appendChild(removeBtn);
+        }
+
+        function remove(e) {
+            var el = e.target;
+            el.parentNode.remove();
+        }
+    </script>
+</body>
+
 </html>
