@@ -1,32 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=0.5, maximum-scale=0.5"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=0.5" />
     <title>Zadanie 3</title>
     <style>
-      body {
-        height: 100%;
-        margin: 0px;
-        padding: 0px;
-        overflow: hidden;
+        .container {
+            display: block;
       }
 
-      #root {
-        display: flex;
-        flex-flow: row nowrap;
-        justify-content: flex-start;
-        align-items: stretch;
-        align-content: stretch;
-      }
+        .dropzone {}
     </style>
   </head>
+
   <body>
-    <div id="root">
+    <h2>Click on number to move list element</h2>
+    <ol id="list">
+        <li class="dropzone" id='0' draggable="true" contenteditable="true">List item 1</li>
+        <li class="dropzone" id='1' draggable="true" contenteditable="true">List item 2</li>
+        <li class="dropzone" id='2' draggable="true" contenteditable="true">List item 3</li>
+        <li class="dropzone" id='3' draggable="true" contenteditable="true">List item 4</li>
+        <li class="dropzone" id='4' draggable="true" contenteditable="true">List item 5</li>
+    </ol>
+    <button onclick="addElement()">Add new list element</button>
 
     </div>
   </body>
