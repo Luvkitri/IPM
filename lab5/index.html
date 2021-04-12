@@ -5,7 +5,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset = utf-8" />
   </head>
   <body>
-    <br />
     <form id="addForm" onsubmit="return add(event)">
       <label for="name">Name:</label>
       <input name="name" type="text" />
@@ -21,7 +20,9 @@
       <br />
       <input id="submitBtn" type="submit" value="Add entry" />
     </form>
+    <br />
     <div id="tableDiv"></div>
+    <br />
     <script type="text/javascript">
       //prefixes of implementation that we want to test
       window.indexedDB =
@@ -115,6 +116,18 @@
         };
       }
 
+      function remove(id) {
+        let request = db
+          .transaction(["client"], "readwrite")
+          .objectStore("client")
+          .delete(id);
+
+        request.onsuccess = function (event) {
+          console.log(`Client ${id} removed...`);
+          drawTable();
+        };
+      }
+
       function generateTableHead(table, data) {
         let thead = table.createTHead();
         let row = thead.insertRow();
@@ -150,6 +163,12 @@
               cell.appendChild(text);
             }
 
+            let cell = row.insertCell();
+            let removeButton = document.createElement("button")
+            removeButton.setAttribute("id", "removeButton" + cursor.key)
+            removeButton.setAttribute("onclick", `remove(${cursor.key})`)
+            cell.appendChild(text);
+
             cursor.continue();
           } else {
             console.log("No more data");
@@ -159,7 +178,6 @@
 
       function drawTable() {
         if (document.getElementById("tbody") !== null) {
-          console.log("hello?");
           document.querySelector("#tbody").remove();
         }
 
