@@ -6,9 +6,24 @@
   </head>
   <body>
     <button onclick="readAll()">Read all</button>
-    <button onclick="add()">Add data</button>
     <button onclick="remove()">Delete data</button>
-    <table></table>
+    <br />
+    <form id="addForm" onsubmit="return add(event)">
+      <label for="name">Name:</label>
+      <input name="name" type="text" />
+      <br />
+      <label for="name">Last name:</label>
+      <input name="name" type="text" />
+      <br />
+      <label for="name">age:</label>
+      <input name="name" type="number" />
+      <br />
+      <label for="name">email:</label>
+      <input name="name" type="email" />
+      <br />
+      <input id="submitBtn" type="submit" value="Add entry" />
+    </form>
+    <div id="tableDiv"></div>
     <script type="text/javascript">
       //prefixes of implementation that we want to test
       window.indexedDB =
@@ -46,8 +61,8 @@
         },
       ];
 
-      var db;
-      var request = window.indexedDB.open("newDatabase", 1);
+      let db;
+      let request = window.indexedDB.open("newDatabase", 1);
 
       request.onerror = function (event) {
         console.log("error: The database is opened failed");
@@ -56,6 +71,7 @@
       request.onsuccess = function (event) {
         db = request.result;
         console.log("success: The database " + db + " is opened successfully");
+        drawTable();
       };
 
       request.onupgradeneeded = function (event) {
@@ -93,19 +109,24 @@
         };
       }
 
-      function add() {
+      function add(event) {
+        event.preventDefault();
+
+        var formElements = document.getElementById("addForm");
+
         var request = db
           .transaction(["client"], "readwrite")
           .objectStore("client")
           .add({
-            id: "00-03",
-            name: "Kenny",
-            age: 19,
-            email: "kenny@planet.org",
+            name: formElements[0].value,
+            lastName: formElements[1].value,
+            age: formElements[2].value,
+            email: formElements[3].value,
           });
 
         request.onsuccess = function (event) {
-          alert("Kenny has been added to your database.");
+          console.log("Client added");
+          drawTable();
         };
 
         request.onerror = function (event) {
@@ -132,7 +153,9 @@
 
         // Create id column
         let th = document.createElement("th");
-        let text = document.createTextNode(key);
+        let text = document.createTextNode("id");
+        th.appendChild(text);
+        row.appendChild(th);
 
         for (let key of data) {
           let th = document.createElement("th");
@@ -142,9 +165,43 @@
         }
       }
 
-      let table = document.querySelector("table");
-      let data = Object.keys(clientData[0]);
-      generateTableHead(table, data);
+      function generateTable(table) {
+        let objectStore = db.transaction("client").objectStore("client");
+
+        objectStore.openCursor().onsuccess = function (event) {
+          var cursor = event.target.result;
+
+          if (cursor) {
+            let row = table.insertRow();
+            let cell = row.insertCell();
+            let text = document.createTextNode(cursor.key);
+            cell.appendChild(text);
+            for (const [key, value] of Object.entries(cursor.value)) {
+              let cell = row.insertCell();
+              let text = document.createTextNode(value);
+              cell.appendChild(text);
+            }
+
+            cursor.continue();
+          } else {
+            console.log("No more data");
+          }
+        };
+      }
+
+      function drawTable() {
+        if (document.getElementById("tbody") !== null) {
+          console.log("hello?");
+          document.querySelector("#tbody").remove();
+        }
+
+        let table = document.createElement("table");
+        table.setAttribute("id", "tbody");
+        let data = Object.keys(clientData[0]);
+        generateTable(table);
+        generateTableHead(table, data);
+        document.getElementById("tableDiv").appendChild(table);
+      }
     </script>
   </body>
 </html>
