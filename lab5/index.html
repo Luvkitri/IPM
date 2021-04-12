@@ -163,11 +163,12 @@
               cell.appendChild(text);
             }
 
-            let cell = row.insertCell();
+            cell = row.insertCell();
             let removeButton = document.createElement("button")
             removeButton.setAttribute("id", "removeButton" + cursor.key)
             removeButton.setAttribute("onclick", `remove(${cursor.key})`)
-            cell.appendChild(text);
+            removeButton.innerHTML = "remove"
+            cell.appendChild(removeButton);
 
             cursor.continue();
           } else {
