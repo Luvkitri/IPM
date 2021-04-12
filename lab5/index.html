@@ -5,8 +5,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset = utf-8" />
   </head>
   <body>
-    <button onclick="readAll()">Read all</button>
-    <button onclick="remove()">Delete data</button>
     <br />
     <form id="addForm" onsubmit="return add(event)">
       <label for="name">Name:</label>
@@ -90,25 +88,6 @@
         }
       };
 
-      function readAll() {
-        var objectStore = db.transaction("client").objectStore("client");
-
-        objectStore.openCursor().onsuccess = function (event) {
-          var cursor = event.target.result;
-
-          if (cursor) {
-            console.log("Id: " + cursor.key);
-            console.log("Name: " + cursor.value.name);
-            console.log("Last Name: " + cursor.value.lastName);
-            console.log("Age: " + cursor.value.age);
-            console.log("Email: " + cursor.value.email);
-            cursor.continue();
-          } else {
-            console.log("No more data");
-          }
-        };
-      }
-
       function add(event) {
         event.preventDefault();
 
@@ -133,17 +112,6 @@
           alert(
             "Unable to add data\r\nKenny is aready exist in your database! "
           );
-        };
-      }
-
-      function remove() {
-        var request = db
-          .transaction(["client"], "readwrite")
-          .objectStore("client")
-          .delete("00-03");
-
-        request.onsuccess = function (event) {
-          alert("Kenny's entry has been removed from your database.");
         };
       }
 
