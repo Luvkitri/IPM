@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset = utf-8" />
+  </head>
+  <body>
+    <button onclick="readAll()">Read all</button>
+    <button onclick="add()">Add data</button>
+    <button onclick="remove()">Delete data</button>
+    <table></table>
+    <script type="text/javascript">
+      //prefixes of implementation that we want to test
+      window.indexedDB =
+        window.indexedDB ||
+        window.mozIndexedDB ||
+        window.webkitIndexedDB ||
+        window.msIndexedDB;
+
+      //prefixes of window.IDB objects
+      window.IDBTransaction =
+        window.IDBTransaction ||
+        window.webkitIDBTransaction ||
+        window.msIDBTransaction;
+      window.IDBKeyRange =
+        window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
+
+      if (!window.indexedDB) {
+        window.alert(
+          "Your browser doesn't support a stable version of IndexedDB."
+        );
+      }
+
+      const clientData = [
+        {
+          name: "Karol",
+          lastName: "Nowak",
+          age: 12,
+          email: "karol@gmail.com",
+        },
+        {
+          name: "Marcin",
+          lastName: "Kowalski",
+          age: 23,
+          email: "marcin@gmail.com",
+        },
+      ];
+
+      var db;
+      var request = window.indexedDB.open("newDatabase", 1);
+
+      request.onerror = function (event) {
+        console.log("error: The database is opened failed");
+      };
+
+      request.onsuccess = function (event) {
+        db = request.result;
+        console.log("success: The database " + db + " is opened successfully");
+      };
+
+      request.onupgradeneeded = function (event) {
+        var db = event.target.result;
+        var objectStore = db.createObjectStore("client", {
+          autoIncrement: true,
+        });
+
+        objectStore.createIndex("name", "name", { unique: false });
+        objectStore.createIndex("lastName", "lastName", { unique: false });
+        objectStore.createIndex("age", "age", { unique: false });
+        objectStore.createIndex("email", "email", { unique: true });
+
+        for (var i in clientData) {
+          objectStore.add(clientData[i]);
+        }
+      };
+
+      function readAll() {
+        var objectStore = db.transaction("client").objectStore("client");
+
+        objectStore.openCursor().onsuccess = function (event) {
+          var cursor = event.target.result;
+
+          if (cursor) {
+            console.log("Id: " + cursor.key);
+            console.log("Name: " + cursor.value.name);
+            console.log("Last Name: " + cursor.value.lastName);
+            console.log("Age: " + cursor.value.age);
+            console.log("Email: " + cursor.value.email);
+            cursor.continue();
+          } else {
+            console.log("No more data");
+          }
+        };
+      }
+
+      function add() {
+        var request = db
+          .transaction(["client"], "readwrite")
+          .objectStore("client")
+          .add({
+            id: "00-03",
+            name: "Kenny",
+            age: 19,
+            email: "kenny@planet.org",
+          });
+
+        request.onsuccess = function (event) {
+          alert("Kenny has been added to your database.");
+        };
+
+        request.onerror = function (event) {
+          alert(
+            "Unable to add data\r\nKenny is aready exist in your database! "
+          );
+        };
+      }
+
+      function remove() {
+        var request = db
+          .transaction(["client"], "readwrite")
+          .objectStore("client")
+          .delete("00-03");
+
+        request.onsuccess = function (event) {
+          alert("Kenny's entry has been removed from your database.");
+        };
+      }
+
+      function generateTableHead(table, data) {
+        let thead = table.createTHead();
+        let row = thead.insertRow();
+
+        // Create id column
+        let th = document.createElement("th");
+        let text = document.createTextNode(key);
+
+        for (let key of data) {
+          let th = document.createElement("th");
+          let text = document.createTextNode(key);
+          th.appendChild(text);
+          row.appendChild(th);
+        }
+      }
+
+      let table = document.querySelector("table");
+      let data = Object.keys(clientData[0]);
+      generateTableHead(table, data);
+    </script>
+  </body>
+</html>
