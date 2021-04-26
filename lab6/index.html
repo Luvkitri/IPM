@@ -15,26 +15,55 @@
   </head>
   <body>
     <form id="addForm" onsubmit="return add(event)">
+      <label for="id">Id:</label>
+      <input id="idInput" name="id" type="number" />
+      <br />
       <label for="name">Name:</label>
-      <input name="name" type="text" />
+      <input id="nameInput" class="data" name="name" type="text" required />
       <br />
       <label for="lastName">Last name:</label>
-      <input name="lastName" type="text" />
+      <input
+        id="lastNameInput"
+        class="data"
+        name="lastName"
+        type="text"
+        required
+      />
       <br />
       <label for="age">Age:</label>
-      <input name="age" type="number" />
+      <input id="ageInput" class="data" name="age" type="number" required />
       <br />
       <label for="email">email:</label>
-      <input name="email" type="email" />
+      <input id="emailInput" class="data" name="email" type="email" required />
       <br />
       <label for="pesel">Pesel</label>
-      <input name="pesel" type="text" />
+      <input
+        id="peselInput"
+        class="data"
+        name="pesel"
+        type="text"
+        pattern="^[0-9]{11}$"
+        required
+      />
       <br />
       <label for="address">Address</label>
-      <input name="address" type="text" />
+      <input
+        id="addressInput"
+        class="data"
+        name="address"
+        type="text"
+        required
+      />
       <br />
       <label for="phoneNumber">Phone Number:</label>
-      <input name="phoneNumber" type="text" />
+      <input
+        id="phoneNumberInput"
+        class="data"
+        name="phoneNumber"
+        type="text"
+        pattern="[0-9]{9}"
+        required
+      />
       <br />
       <input id="submitBtn" type="submit" value="Add entry" />
     </form>
