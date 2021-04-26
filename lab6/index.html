@@ -67,6 +67,11 @@
       <br />
       <input id="submitBtn" type="submit" value="Add entry" />
     </form>
+    <button id="editBtn" onclick="editData()" disabled>Edit entry</button>
+    <br />
+    <br />
+    <button onclick="return insertRandomCell()">Insert Random Cell</button>
+    <br />
     <br />
     <div id="searchFiled">
       <input id="searchBar" name="search" type="text" placeholder="Search..." />
@@ -103,18 +108,18 @@
           lastName: "Nowak",
           age: "12",
           email: "karol@gmail.com",
-          pesel: '12345678901',
-          addres: "Zachodnia 1",
-          phoneNumber: "500500200"
+          pesel: "12345678901",
+          address: "Zachodnia 1",
+          phoneNumber: "500500200",
         },
         {
           name: "Marcin",
           lastName: "Kowalski",
           age: "23",
           email: "marcin@gmail.com",
-          pesel: '12345678902',
+          pesel: "12345678902",
           address: "Zachodnia 2",
-          phoneNumber: "500400200"
+          phoneNumber: "500400200",
         },
       ];
 
@@ -171,10 +176,12 @@
         objectStore.createIndex("name", "name", { unique: false });
         objectStore.createIndex("lastName", "lastName", { unique: false });
         objectStore.createIndex("age", "age", { unique: false });
-        objectStore.createIndex("email", "email", { unique: true });
-        objectStore.createIndex("pesel", "pesel", { unique: true });
+        objectStore.createIndex("email", "email", { unique: false });
+        objectStore.createIndex("pesel", "pesel", { unique: false });
         objectStore.createIndex("address", "address", { unique: false });
-        objectStore.createIndex("phoneNumber", "phoneNumber", { unique: true });
+        objectStore.createIndex("phoneNumber", "phoneNumber", {
+          unique: false,
+        });
 
         for (var i in clientData) {
           objectStore.add(clientData[i]);
@@ -190,13 +197,13 @@
           .transaction(["client"], "readwrite")
           .objectStore("client")
           .add({
-            name: formElements[0].value,
-            lastName: formElements[1].value,
-            age: formElements[2].value,
-            email: formElements[3].value,
-            pesel: formElements[4].value,
-            address: formElements[5].value,
-            phoneNumber: formElements[6].value,
+            name: formElements[1].value,
+            lastName: formElements[2].value,
+            age: formElements[3].value,
+            email: formElements[4].value,
+            pesel: formElements[5].value,
+            address: formElements[6].value,
+            phoneNumber: formElements[7].value,
           });
 
         request.onsuccess = function (event) {
@@ -214,10 +221,28 @@
       function search(event) {
         event.preventDefault();
 
-        let searchInputs = document.getElementById("searchBar").value.split(' ');
-        
+        let searchInputs = document
+          .getElementById("searchBar")
+          .value.split(" ");
+
         drawTable(searchInputs);
       }
+
+      document
+        .getElementById("searchBar")
+        .addEventListener("input", (event) => {
+          drawTable(event.target.value.split(" "));
+        });
+
+      document.getElementById("idInput").addEventListener("input", (event) => {
+        if (event.target.value) {
+          document.getElementById("submitBtn").disabled = true;
+          document.getElementById("editBtn").disabled = false;
+        } else {
+          document.getElementById("submitBtn").disabled = false;
+          document.getElementById("editBtn").disabled = true;
+        }
+      });
 
       function remove(id) {
         let request = db
@@ -228,6 +253,75 @@
         request.onsuccess = function (event) {
           console.log(`Client ${id} removed...`);
           drawTable();
+        };
+      }
+
+      function editData() {
+        let formElements = document.getElementById("addForm");
+
+        var objectStore = db
+          .transaction(["client"], "readwrite")
+          .objectStore("client");
+
+        var request = objectStore.get(parseInt(formElements[0].value));
+        request.onerror = function (event) {
+          // Handle errors!
+          console.log(
+            "Something went wrong, prob client with that id does not exits"
+          );
+        };
+        request.onsuccess = function (event) {
+          // Get the old value that we want to update
+          var data = event.target.result;
+
+          console.log(data);
+
+          // update the value(s) in the object that you want to change
+          data.name = formElements[1].value;
+          data.lastName = formElements[2].value;
+          data.age = formElements[3].value;
+          data.email = formElements[4].value;
+          data.pesel = formElements[5].value;
+          data.address = formElements[6].value;
+          data.phoneNumber = formElements[7].value;
+
+          // Get the old value that we want to update
+          let requestUpdate = objectStore.put(data);
+          requestUpdate.onerror = function (event) {
+            console.log("Error when updating");
+          };
+          requestUpdate.onsuccess = function (event) {
+            console.log("Record updated");
+            drawTable();
+          };
+        };
+      }
+
+      function fillEditData(id) {
+        document.getElementById("submitBtn").disabled = true;
+        document.getElementById("editBtn").disabled = false;
+
+        var objectStore = db
+          .transaction(["client"], "readwrite")
+          .objectStore("client");
+
+        var request = objectStore.get(id);
+        request.onerror = function (event) {
+          // Handle errors!
+          console.log("Something went wrong");
+        };
+        request.onsuccess = function (event) {
+          // Get the old value that we want to update
+          let data = event.target.result;
+
+          document.getElementById("idInput").value = id;
+          document.getElementById("nameInput").value = data.name;
+          document.getElementById("lastNameInput").value = data.lastName;
+          document.getElementById("ageInput").value = data.age;
+          document.getElementById("emailInput").value = data.email;
+          document.getElementById("peselInput").value = data.pesel;
+          document.getElementById("addressInput").value = data.address;
+          document.getElementById("phoneNumberInput").value = data.phoneNumber;
         };
       }
 
@@ -261,9 +355,9 @@
               let exists = false;
               for (let i = 0; i < filterItems.length; i++) {
                 const element = filterItems[i];
-                
+
                 if (Object.values(cursor.value).includes(element)) {
-                  exists = true
+                  exists = true;
                 }
               }
 
@@ -273,7 +367,7 @@
               }
             }
 
-            console.log(cursor.value)
+            console.log(cursor.value);
 
             let row = table.insertRow();
             let cell = row.insertCell();
@@ -286,11 +380,18 @@
             }
 
             cell = row.insertCell();
+
             let removeButton = document.createElement("button");
             removeButton.setAttribute("id", "removeButton" + cursor.key);
             removeButton.setAttribute("onclick", `remove(${cursor.key})`);
             removeButton.innerHTML = "remove";
             cell.appendChild(removeButton);
+
+            let editButton = document.createElement("button");
+            editButton.setAttribute("id", "editButton" + cursor.key);
+            editButton.setAttribute("onclick", `fillEditData(${cursor.key})`);
+            editButton.innerHTML = "edit";
+            cell.appendChild(editButton);
 
             cursor.continue();
           } else {
