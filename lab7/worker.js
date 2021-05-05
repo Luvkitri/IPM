@@ -17,6 +17,7 @@ function swapCase(word) {
 
 onmessage = function (e) {
   let parseObject = JSON.parse(e.data);
+  console.log(parseObject);
 
   Object.keys(parseObject).foreach(key => {
     console.log(swapCase(parseObject[key]));
