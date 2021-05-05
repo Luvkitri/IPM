@@ -68,11 +68,14 @@
       <input id="submitBtn" type="submit" value="Add entry" />
     </form>
     <button id="editBtn" onclick="editData(event)" disabled>Edit entry</button>
+    <button onclick="webWorkerTask()">WebWorker Task</button>
+    <div id="jsonField"></div>
     <br />
     <br />
     <button onclick="return insertRandomCell()">Insert Random Cell</button>
     <br />
     <br />
+
     <div id="searchFiled">
       <input id="searchBar" name="search" type="text" placeholder="Search..." />
       <button onclick="return search(event)">Search</button>
@@ -288,7 +291,7 @@
             address: formElements[6].value,
             phoneNumber: formElements[7].value,
           };
-          
+
           console.log(client);
 
           // Get the old value that we want to update
@@ -330,6 +333,29 @@
           document.getElementById("addressInput").value = data.address;
           document.getElementById("phoneNumberInput").value = data.phoneNumber;
         };
+      }
+
+      function webWorkerTask() {
+        jsonField = document.getElementById("jsonField");
+
+        let worker;
+
+        if (typeof Worker !== undefined) {
+          if (typeof worker == "undefined") {
+            worker = new Worker("worker.js");
+          }
+
+          console.log("Sending message to worker");
+          worker.postMessage(jsonField.value);
+
+          worker.onmessage = (event) => {
+            console.log("Received message from worker");
+            fillFormWithData
+          }
+
+        } else {
+          jsonField.innerHTML = "This browser doesnt support web workers!";
+        }
       }
 
       function generateTableHead(table, data) {
