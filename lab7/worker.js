@@ -3,6 +3,10 @@ function swapCase(word) {
   let newWord = [];
 
   for (letter of letters) {
+    if (isNaN(letter)) {
+      continue;
+    }
+    
     if (letter == letter.toUpperCase()) {
       newWord.push(letter.toLowerCase());
     }
