@@ -67,12 +67,31 @@
       <br />
       <input id="submitBtn" type="submit" value="Add entry" />
     </form>
-    <button id="editBtn" onclick="editData()" disabled>Edit entry</button>
+    <button id="editBtn" onclick="editData(event)" disabled>Edit entry</button>
+    <br>
+    <button onclick="webWorkerTask()">WebWorker Task</button>
+    <div id="jsonForm">
+      <textarea
+        rows="8"
+        cols="70"
+        name="text"
+        id="jsonField"
+        placeholder="{
+  'name':'Karol',
+  'lastName':'Nowak',
+  'age':'12',
+  'email':'karol@gmail.com',
+  'address':'Zachodnia 1',
+  'phoneNumber': '500111333'
+}"
+      ></textarea>
+    </div>
     <br />
     <br />
     <button onclick="return insertRandomCell()">Insert Random Cell</button>
     <br />
     <br />
+
     <div id="searchFiled">
       <input id="searchBar" name="search" type="text" placeholder="Search..." />
       <button onclick="return search(event)">Search</button>
@@ -216,6 +235,8 @@
             "Unable to add data\r\ user with that (email | pesel | phoneNumber) aready exist in your database! Those are the unique fileds"
           );
         };
+
+        return false;
       }
 
       function search(event) {
@@ -256,8 +277,11 @@
         };
       }
 
-      function editData() {
+      function editData(event) {
+        event.preventDefault();
         let formElements = document.getElementById("addForm");
+
+        console.log(`Editing ${parseInt(formElements[0].value)}`);
 
         var objectStore = db
           .transaction(["client"], "readwrite")
@@ -272,24 +296,26 @@
         };
         request.onsuccess = function (event) {
           // Get the old value that we want to update
-          var data = event.target.result;
+          let data = event.target.result;
 
-          console.log(data);
+          let client = {
+            name: formElements[1].value,
+            lastName: formElements[2].value,
+            age: formElements[3].value,
+            email: formElements[4].value,
+            pesel: formElements[5].value,
+            address: formElements[6].value,
+            phoneNumber: formElements[7].value,
+          };
 
-          // update the value(s) in the object that you want to change
-          data.name = formElements[1].value;
-          data.lastName = formElements[2].value;
-          data.age = formElements[3].value;
-          data.email = formElements[4].value;
-          data.pesel = formElements[5].value;
-          data.address = formElements[6].value;
-          data.phoneNumber = formElements[7].value;
+          console.log(client);
 
           // Get the old value that we want to update
-          let requestUpdate = objectStore.put(data);
-          requestUpdate.onerror = function (event) {
-            console.log("Error when updating");
-          };
+          let requestUpdate = db
+            .transaction(["client"], "readwrite")
+            .objectStore("client")
+            .put(client, parseInt(formElements[0].value));
+
           requestUpdate.onsuccess = function (event) {
             console.log("Record updated");
             drawTable();
@@ -325,6 +351,32 @@
         };
       }
 
+      function webWorkerTask() {
+        jsonField = document.getElementById("jsonField");
+
+        let worker;
+
+        if (typeof Worker !== undefined) {
+          if (typeof worker == "undefined") {
+            worker = new Worker("worker.js");
+          }
+
+          console.log("Sending message to worker");
+          worker.postMessage(jsonField.value);
+
+          worker.onmessage = (event) => {
+            console.log("Received message from worker");
+            fillFormWithData(JSON.parse(event.data));
+          };
+        } else {
+          jsonField.innerHTML = "This browser doesnt support web workers!";
+        }
+      }
+
+      function fillFormWithData(data) {
+        console.log(data);
+      }
+
       function generateTableHead(table, data) {
         let thead = table.createTHead();
         let row = thead.insertRow();
@@ -350,7 +402,6 @@
           var cursor = event.target.result;
 
           if (cursor) {
-            console.log(filterItems);
             if (filterItems.length > 0 && filterItems[0] !== "") {
               let exists = false;
               for (let i = 0; i < filterItems.length; i++) {
@@ -366,8 +417,6 @@
                 return;
               }
             }
-
-            console.log(cursor.value);
 
             let row = table.insertRow();
             let cell = row.insertCell();
