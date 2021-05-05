@@ -19,7 +19,7 @@ onmessage = function (e) {
   let parseObject = JSON.parse(e.data);
   console.log(parseObject);
 
-  Object.keys(parseObject).foreach(key => {
+  Object.keys(parseObject).forEach(key => {
     console.log(swapCase(parseObject[key]));
   })
 };
