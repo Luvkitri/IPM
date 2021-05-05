@@ -67,7 +67,7 @@
       <br />
       <input id="submitBtn" type="submit" value="Add entry" />
     </form>
-    <button id="editBtn" onclick="editData(event)" disabled>Edit entry</button>
+    <button id="editBtn" onclick="editData()" disabled>Edit entry</button>
     <br />
     <br />
     <button onclick="return insertRandomCell()">Insert Random Cell</button>
@@ -216,8 +216,6 @@
             "Unable to add data\r\ user with that (email | pesel | phoneNumber) aready exist in your database! Those are the unique fileds"
           );
         };
-
-        return false;
       }
 
       function search(event) {
@@ -258,11 +256,8 @@
         };
       }
 
-      function editData(event) {
-        event.preventDefault();
+      function editData() {
         let formElements = document.getElementById("addForm");
-
-        console.log(`Editing ${parseInt(formElements[0].value)}`);
 
         var objectStore = db
           .transaction(["client"], "readwrite")
@@ -277,26 +272,24 @@
         };
         request.onsuccess = function (event) {
           // Get the old value that we want to update
-          let data = event.target.result;
+          var data = event.target.result;
 
-          let client = {
-            name: formElements[1].value,
-            lastName: formElements[2].value,
-            age: formElements[3].value,
-            email: formElements[4].value,
-            pesel: formElements[5].value,
-            address: formElements[6].value,
-            phoneNumber: formElements[7].value,
-          };
-          
-          console.log(client);
+          console.log(data);
+
+          // update the value(s) in the object that you want to change
+          data.name = formElements[1].value;
+          data.lastName = formElements[2].value;
+          data.age = formElements[3].value;
+          data.email = formElements[4].value;
+          data.pesel = formElements[5].value;
+          data.address = formElements[6].value;
+          data.phoneNumber = formElements[7].value;
 
           // Get the old value that we want to update
-          let requestUpdate = db
-            .transaction(["client"], "readwrite")
-            .objectStore("client")
-            .put(client, parseInt(formElements[0].value));
-
+          let requestUpdate = objectStore.put(data);
+          requestUpdate.onerror = function (event) {
+            console.log("Error when updating");
+          };
           requestUpdate.onsuccess = function (event) {
             console.log("Record updated");
             drawTable();
@@ -357,6 +350,7 @@
           var cursor = event.target.result;
 
           if (cursor) {
+            console.log(filterItems);
             if (filterItems.length > 0 && filterItems[0] !== "") {
               let exists = false;
               for (let i = 0; i < filterItems.length; i++) {
@@ -372,6 +366,8 @@
                 return;
               }
             }
+
+            console.log(cursor.value);
 
             let row = table.insertRow();
             let cell = row.insertCell();
