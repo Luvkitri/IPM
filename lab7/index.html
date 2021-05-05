@@ -374,7 +374,15 @@
       }
 
       function fillFormWithData(data) {
-        console.log(data);
+        fileds = ['name', 'lastName', 'age', 'email', 'pesel', 'address', 'phoneNumber'];
+
+        let formElements = document.getElementById("addForm");
+
+        for ([[index, field]] of fields) {
+          if (field in data) {
+            formElements[index+1].value = field
+          }
+        }
       }
 
       function generateTableHead(table, data) {
