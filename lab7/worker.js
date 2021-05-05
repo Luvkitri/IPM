@@ -12,15 +12,15 @@ function swapCase(word) {
     }
   }
 
-  return newWord.toString();
+  return newWord.join("");
 }
 
 onmessage = function (e) {
   let parseObject = JSON.parse(e.data);
-  console.log(parseObject);
 
-  console.log("HEllo?");
   Object.keys(parseObject).forEach(key => {
-    console.log(swapCase(parseObject[key]));
+    parseObject[key] = swapCase(parseObject[key]);
   })
+
+  postMessage(JSON.stringify(parseObject));
 };
