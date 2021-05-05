@@ -378,9 +378,11 @@
 
         let formElements = document.getElementById("addForm");
 
+        console.log(data);
+
         for ([[index, field]] of fields) {
           if (field in data) {
-            formElements[index+1].value = field
+            document.getElementById(field + 'Input').value = data[field];
           }
         }
       }
