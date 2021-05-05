@@ -382,6 +382,7 @@
 
         for ([[index, field]] of fields) {
           if (field in data) {
+            console.log(document.getElementById(field + 'Input').value)
             document.getElementById(field + 'Input').value = data[field];
           }
         }
