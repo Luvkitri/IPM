@@ -231,12 +231,11 @@
         };
 
         request.onerror = function (event) {
+          console.log(event);
           alert(
-            "Unable to add data\r\ user with that (email | pesel | phoneNumber) aready exist in your database! Those are the unique fileds"
+            "error"
           );
         };
-
-        return false;
       }
 
       function search(event) {
