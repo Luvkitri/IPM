@@ -359,7 +359,7 @@
 
           worker.onmessage = (event) => {
             console.log("Received message from worker");
-            fillFormWithData(JSON.parse(event.data));
+            fillFormWithData(event.data);
           };
         } else {
           jsonField.innerHTML = "This browser doesnt support web workers!";

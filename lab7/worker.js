@@ -27,5 +27,5 @@ onmessage = function (e) {
     data[key] = swapCase(data[key]);
   });
 
-  postMessage(JSON.stringify(data));
+  postMessage(data);
 };
