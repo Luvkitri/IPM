@@ -1,0 +1,20 @@
+{
+  "name": "ipm",
+  "version": "1.0.0",
+  "description": "Link do strony z zadaniami: https://luvkitri.github.io/IPM/",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Luvkitri/IPM.git"
+  },
+  "author": "Jan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Luvkitri/IPM/issues"
+  },
+  "homepage": "https://github.com/Luvkitri/IPM#readme"
+}

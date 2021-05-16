@@ -21,11 +21,11 @@ function swapCase(word) {
 }
 
 onmessage = function (e) {
-  let data = e.data;
+  let parseObject = JSON.parse(e.data);
 
-  Object.keys(data).forEach((key) => {
-    data[key] = swapCase(data[key]);
+  Object.keys(parseObject).forEach((key) => {
+    parseObject[key] = swapCase(parseObject[key]);
   });
 
-  postMessage(data);
+  postMessage(JSON.stringify(parseObject));
 };
