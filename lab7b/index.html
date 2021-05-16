@@ -65,12 +65,25 @@
         required
       />
       <br />
+      <label for="photoURL">Photo URL:</label>
+      <input
+        id="photoURLInput"
+        class="data"
+        type="url"
+        name="photoURL"
+        pattern="https://.*"
+        required
+      />
+      <br />
       <input id="submitBtn" type="submit" value="Add entry" />
     </form>
     <button id="editBtn" onclick="editData(event)" disabled>Edit entry</button>
-    <br>
-    <button onclick="webWorkerTask()">WebWorker Task</button>
     <br />
+    <button onclick="webWorkerSwapCase()">WebWorker Swap Case</button>
+    <br />
+    <button onclick="webWorkerGetColor()">WebWorker Get Color</button>
+    <br />
+    <div id="showRGB"></div>
     <br />
     <button onclick="return insertRandomCell()">Insert Random Cell</button>
     <br />
@@ -83,6 +96,7 @@
     <br />
     <div id="tableDiv"></div>
     <br />
+    <div id="errorDiv"></div>
     <script type="text/javascript">
       //prefixes of implementation that we want to test
       window.indexedDB =
@@ -216,9 +230,7 @@
 
         request.onerror = function (event) {
           console.log(event);
-          alert(
-            "error"
-          );
+          alert("error");
         };
       }
 
@@ -334,7 +346,7 @@
         };
       }
 
-      function webWorkerTask() {
+      function webWorkerSwapCase() {
         let formElements = document.getElementById("addForm");
         let worker;
 
@@ -353,7 +365,7 @@
             pesel: formElements[5].value,
             address: formElements[6].value,
             phoneNumber: formElements[7].value,
-          }
+          };
 
           worker.postMessage(message);
 
@@ -362,12 +374,52 @@
             fillFormWithData(event.data);
           };
         } else {
-          jsonField.innerHTML = "This browser doesnt support web workers!";
+          getElementById("errorDiv").innerHTML = "This browser doesnt support web workers!"
+        }
+      }
+
+      function webWorkerGetColor() {
+        let formElements = document.getElementById("addForm");
+        let worker;
+
+        if (typeof Worker !== undefined) {
+          if (typeof worker == "undefined") {
+            worker = new Worker("worker.js");
+          }
+
+          console.log("Sending message to worker");
+
+          let message = {
+            name: formElements[1].value,
+            lastName: formElements[2].value,
+            age: formElements[3].value,
+            email: formElements[4].value,
+            pesel: formElements[5].value,
+            address: formElements[6].value,
+            phoneNumber: formElements[7].value,
+          };
+
+          worker.postMessage(message);
+
+          worker.onmessage = (event) => {
+            console.log("Received message from worker");
+            fillFormWithData(event.data);
+          };
+        } else {
+          getElementById("errorDiv").innerHTML = "This browser doesnt support web workers!"
         }
       }
 
       function fillFormWithData(data) {
-        fields = ['name', 'lastName', 'age', 'email', 'pesel', 'address', 'phoneNumber'];
+        fields = [
+          "name",
+          "lastName",
+          "age",
+          "email",
+          "pesel",
+          "address",
+          "phoneNumber",
+        ];
 
         let formElements = document.getElementById("addForm");
 
@@ -375,8 +427,8 @@
 
         for (field of fields) {
           if (field in data) {
-            console.log(document.getElementById(field + 'Input').value)
-            document.getElementById(field + 'Input').value = data[field];
+            console.log(document.getElementById(field + "Input").value);
+            document.getElementById(field + "Input").value = data[field];
           }
         }
       }
