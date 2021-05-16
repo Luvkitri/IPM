@@ -83,7 +83,11 @@
     <br />
     <button onclick="webWorkerGetColor()">WebWorker Get Color</button>
     <br />
-    <div id="showRGB"></div>
+    <p id="rgbData"></p>
+    <div id="showRGB" style="position: relative; display: table;">
+      <div id="imgOpacity"></div>
+      <img id="imgPlaceholder" />
+    </div>
     <br />
     <button onclick="return insertRandomCell()">Insert Random Cell</button>
     <br />
@@ -128,6 +132,7 @@
           pesel: "12345678901",
           address: "Zachodnia 1",
           phoneNumber: "500500200",
+          url: "https://i.stack.imgur.com/hOuSj.png",
         },
         {
           name: "Marcin",
@@ -137,6 +142,7 @@
           pesel: "12345678902",
           address: "Zachodnia 2",
           phoneNumber: "500400200",
+          url: "https://i.stack.imgur.com/hOuSj.png",
         },
       ];
 
@@ -199,6 +205,9 @@
         objectStore.createIndex("phoneNumber", "phoneNumber", {
           unique: false,
         });
+        objectStore.createIndex("url", "url", {
+          unique: false,
+        });
 
         for (var i in clientData) {
           objectStore.add(clientData[i]);
@@ -221,6 +230,7 @@
             pesel: formElements[5].value,
             address: formElements[6].value,
             phoneNumber: formElements[7].value,
+            url: formElements[8].value,
           });
 
         request.onsuccess = function (event) {
@@ -301,6 +311,7 @@
             pesel: formElements[5].value,
             address: formElements[6].value,
             phoneNumber: formElements[7].value,
+            url: formElements[8].value,
           };
 
           console.log(client);
@@ -343,6 +354,7 @@
           document.getElementById("peselInput").value = data.pesel;
           document.getElementById("addressInput").value = data.address;
           document.getElementById("phoneNumberInput").value = data.phoneNumber;
+          document.getElementById("photoURLInput").value = data.url;
         };
       }
 
@@ -374,7 +386,8 @@
             fillFormWithData(event.data);
           };
         } else {
-          getElementById("errorDiv").innerHTML = "This browser doesnt support web workers!"
+          document.getElementById("errorDiv").innerHTML =
+            "This browser doesnt support web workers!";
         }
       }
 
@@ -384,7 +397,7 @@
 
         if (typeof Worker !== undefined) {
           if (typeof worker == "undefined") {
-            worker = new Worker("worker.js");
+            worker = new Worker("workerRGB.js");
           }
 
           console.log("Sending message to worker");
@@ -392,21 +405,38 @@
           let message = {
             name: formElements[1].value,
             lastName: formElements[2].value,
-            age: formElements[3].value,
             email: formElements[4].value,
-            pesel: formElements[5].value,
             address: formElements[6].value,
-            phoneNumber: formElements[7].value,
+            url: formElements[8].value,
           };
 
           worker.postMessage(message);
 
           worker.onmessage = (event) => {
             console.log("Received message from worker");
-            fillFormWithData(event.data);
+
+            // Set paragraph
+            document.getElementById("rgbData").innerHTML = JSON.stringify(
+              event.data
+            );
+            document.getElementById(
+              "rgbData"
+            ).style = `color: rgb(${event.data.R}, ${event.data.G}, ${event.data.B});`;
+
+            // Set img
+            document.getElementById("imgPlaceholder").src =
+              formElements[8].value;
+            document.getElementById("imgPlaceholder").style =
+              "position: relative;";
+
+            // Set img overlay
+            document.getElementById(
+              "imgOpacity"
+            ).style = `background-color: rgba(${event.data.R}, ${event.data.G}, ${event.data.B}, 0.5); z-index: 1; position: absolute; width: 100%; height: 100%;`;
           };
         } else {
-          getElementById("errorDiv").innerHTML = "This browser doesnt support web workers!"
+          document.getElementById("rgbData").innerHTML =
+            "This browser doesnt support web workers!";
         }
       }
 
