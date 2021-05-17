@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset = utf-8" />
+    <style>
+      .data:valid {
+        border: 2px solid green;
+      }
+
+      .data:invalid {
+        border: 2px solid red;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="addForm" onsubmit="return add(event)">
+      <label for="id">Id:</label>
+      <input id="idInput" name="id" type="number" />
+      <br />
+      <label for="name">Name:</label>
+      <input id="nameInput" class="data" name="name" type="text" required />
+      <br />
+      <label for="lastName">Last name:</label>
+      <input
+        id="lastNameInput"
+        class="data"
+        name="lastName"
+        type="text"
+        required
+      />
+      <br />
+      <label for="age">Age:</label>
+      <input id="ageInput" class="data" name="age" type="number" required />
+      <br />
+      <label for="email">email:</label>
+      <input id="emailInput" class="data" name="email" type="email" required />
+      <br />
+      <label for="pesel">Pesel</label>
+      <input
+        id="peselInput"
+        class="data"
+        name="pesel"
+        type="text"
+        pattern="^[0-9]{11}$"
+        required
+      />
+      <br />
+      <label for="address">Address</label>
+      <input
+        id="addressInput"
+        class="data"
+        name="address"
+        type="text"
+        required
+      />
+      <br />
+      <label for="phoneNumber">Phone Number:</label>
+      <input
+        id="phoneNumberInput"
+        class="data"
+        name="phoneNumber"
+        type="text"
+        pattern="[0-9]{9}"
+        required
+      />
+      <br />
+      <label for="photoURL">Photo URL:</label>
+      <input
+        id="photoURLInput"
+        class="data"
+        type="url"
+        name="photoURL"
+        pattern="https://.*"
+        required
+      />
+      <br />
+      <input id="submitBtn" type="submit" value="Add entry" />
+    </form>
+    <button id="editBtn" onclick="editData(event)" disabled>Edit entry</button>
+    <br />
+    <button onclick="webWorkerSwapCase()">WebWorker Swap Case</button>
+    <br />
+    <button onclick="webWorkerGetColor()">WebWorker Get Color</button>
+    <br />
+    <p id="rgbData"></p>
+    <div id="showRGB" style="position: relative; display: table;">
+      <div id="imgOpacity"></div>
+      <img id="imgPlaceholder" />
+    </div>
+    <br />
+    <button onclick="return insertRandomCell()">Insert Random Cell</button>
+    <br />
+    <br />
+
+    <div id="searchFiled">
+      <input id="searchBar" name="search" type="text" placeholder="Search..." />
+      <button onclick="return search(event)">Search</button>
+    </div>
+    <br />
+    <div id="tableDiv"></div>
+    <br />
+    <div id="errorDiv"></div>
+    <script type="text/javascript">
+      //prefixes of implementation that we want to test
+      window.indexedDB =
+        window.indexedDB ||
+        window.mozIndexedDB ||
+        window.webkitIndexedDB ||
+        window.msIndexedDB;
+
+      //prefixes of window.IDB objects
+      window.IDBTransaction =
+        window.IDBTransaction ||
+        window.webkitIDBTransaction ||
+        window.msIDBTransaction;
+      window.IDBKeyRange =
+        window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
+
+      if (!window.indexedDB) {
+        window.alert(
+          "Your browser doesn't support a stable version of IndexedDB."
+        );
+      }
+
+      const clientData = [
+        {
+          name: "Karol",
+          lastName: "Nowak",
+          age: "12",
+          email: "karol@gmail.com",
+          pesel: "12345678901",
+          address: "Zachodnia 1",
+          phoneNumber: "500500200",
+          url: "https://i.stack.imgur.com/hOuSj.png",
+        },
+        {
+          name: "Marcin",
+          lastName: "Kowalski",
+          age: "23",
+          email: "marcin@gmail.com",
+          pesel: "12345678902",
+          address: "Zachodnia 2",
+          phoneNumber: "500400200",
+          url: "https://i.stack.imgur.com/hOuSj.png",
+        },
+      ];
+
+      const NAMES = [
+        "Jan",
+        "Marcin",
+        "Stefan",
+        "Karol",
+        "Mikołaj",
+        "Franek",
+        "Bartek",
+        "Olek",
+        "Albert",
+        "Adam",
+      ];
+      const SURNAMES = [
+        "Kowalski",
+        "Kowalczyk",
+        "Kwiatkowski",
+        "Bartczak",
+        "Stefanowski",
+        "Piłsudzki",
+        "Dmowski",
+      ];
+      const ADDRESSES = [
+        "Zachodnia",
+        "Północna",
+        "Wschodnia",
+        "Nowomiejska",
+        "Sterlinga",
+        "Piotrkowska",
+        "Próchnika",
+      ];
+
+      let db;
+      let request = window.indexedDB.open("newDatabase", 1);
+
+      request.onerror = function (event) {
+        console.log("error: The database is opened failed");
+      };
+
+      request.onsuccess = function (event) {
+        db = request.result;
+        console.log("success: The database " + db + " is opened successfully");
+        drawTable();
+      };
+
+      request.onupgradeneeded = function (event) {
+        var db = event.target.result;
+        var objectStore = db.createObjectStore("client", {
+          autoIncrement: true,
+        });
+
+        objectStore.createIndex("name", "name", { unique: false });
+        objectStore.createIndex("lastName", "lastName", { unique: false });
+        objectStore.createIndex("age", "age", { unique: false });
+        objectStore.createIndex("email", "email", { unique: false });
+        objectStore.createIndex("pesel", "pesel", { unique: false });
+        objectStore.createIndex("address", "address", { unique: false });
+        objectStore.createIndex("phoneNumber", "phoneNumber", {
+          unique: false,
+        });
+        objectStore.createIndex("url", "url", {
+          unique: false,
+        });
+
+        for (var i in clientData) {
+          objectStore.add(clientData[i]);
+        }
+      };
+
+      function add(event) {
+        event.preventDefault();
+
+        var formElements = document.getElementById("addForm");
+
+        var request = db
+          .transaction(["client"], "readwrite")
+          .objectStore("client")
+          .add({
+            name: formElements[1].value,
+            lastName: formElements[2].value,
+            age: formElements[3].value,
+            email: formElements[4].value,
+            pesel: formElements[5].value,
+            address: formElements[6].value,
+            phoneNumber: formElements[7].value,
+            url: formElements[8].value,
+          });
+
+        request.onsuccess = function (event) {
+          console.log("Client added");
+          drawTable();
+        };
+
+        request.onerror = function (event) {
+          console.log(event);
+          alert("error");
+        };
+      }
+
+      function search(event) {
+        event.preventDefault();
+
+        let searchInputs = document
+          .getElementById("searchBar")
+          .value.split(" ");
+
+        drawTable(searchInputs);
+      }
+
+      document
+        .getElementById("searchBar")
+        .addEventListener("input", (event) => {
+          drawTable(event.target.value.split(" "));
+        });
+
+      document.getElementById("idInput").addEventListener("input", (event) => {
+        if (event.target.value) {
+          document.getElementById("submitBtn").disabled = true;
+          document.getElementById("editBtn").disabled = false;
+        } else {
+          document.getElementById("submitBtn").disabled = false;
+          document.getElementById("editBtn").disabled = true;
+        }
+      });
+
+      function remove(id) {
+        let request = db
+          .transaction(["client"], "readwrite")
+          .objectStore("client")
+          .delete(id);
+
+        request.onsuccess = function (event) {
+          console.log(`Client ${id} removed...`);
+          drawTable();
+        };
+      }
+
+      function editData(event) {
+        event.preventDefault();
+        let formElements = document.getElementById("addForm");
+
+        console.log(`Editing ${parseInt(formElements[0].value)}`);
+
+        var objectStore = db
+          .transaction(["client"], "readwrite")
+          .objectStore("client");
+
+        var request = objectStore.get(parseInt(formElements[0].value));
+        request.onerror = function (event) {
+          // Handle errors!
+          console.log(
+            "Something went wrong, prob client with that id does not exits"
+          );
+        };
+        request.onsuccess = function (event) {
+          // Get the old value that we want to update
+          let data = event.target.result;
+
+          let client = {
+            name: formElements[1].value,
+            lastName: formElements[2].value,
+            age: formElements[3].value,
+            email: formElements[4].value,
+            pesel: formElements[5].value,
+            address: formElements[6].value,
+            phoneNumber: formElements[7].value,
+            url: formElements[8].value,
+          };
+
+          console.log(client);
+
+          // Get the old value that we want to update
+          let requestUpdate = db
+            .transaction(["client"], "readwrite")
+            .objectStore("client")
+            .put(client, parseInt(formElements[0].value));
+
+          requestUpdate.onsuccess = function (event) {
+            console.log("Record updated");
+            drawTable();
+          };
+        };
+      }
+
+      function fillEditData(id) {
+        document.getElementById("submitBtn").disabled = true;
+        document.getElementById("editBtn").disabled = false;
+
+        var objectStore = db
+          .transaction(["client"], "readwrite")
+          .objectStore("client");
+
+        var request = objectStore.get(id);
+        request.onerror = function (event) {
+          // Handle errors!
+          console.log("Something went wrong");
+        };
+        request.onsuccess = function (event) {
+          // Get the old value that we want to update
+          let data = event.target.result;
+
+          document.getElementById("idInput").value = id;
+          document.getElementById("nameInput").value = data.name;
+          document.getElementById("lastNameInput").value = data.lastName;
+          document.getElementById("ageInput").value = data.age;
+          document.getElementById("emailInput").value = data.email;
+          document.getElementById("peselInput").value = data.pesel;
+          document.getElementById("addressInput").value = data.address;
+          document.getElementById("phoneNumberInput").value = data.phoneNumber;
+          document.getElementById("photoURLInput").value = data.url;
+        };
+      }
+
+      function webWorkerSwapCase() {
+        let formElements = document.getElementById("addForm");
+        let worker;
+
+        if (typeof Worker !== undefined) {
+          if (typeof worker == "undefined") {
+            worker = new Worker("worker.js");
+          }
+
+          console.log("Sending message to worker");
+
+          let message = {
+            name: formElements[1].value,
+            lastName: formElements[2].value,
+            age: formElements[3].value,
+            email: formElements[4].value,
+            pesel: formElements[5].value,
+            address: formElements[6].value,
+            phoneNumber: formElements[7].value,
+          };
+
+          worker.postMessage(message);
+
+          worker.onmessage = (event) => {
+            console.log("Received message from worker");
+            fillFormWithData(event.data);
+          };
+        } else {
+          document.getElementById("errorDiv").innerHTML =
+            "This browser doesnt support web workers!";
+        }
+      }
+
+      function webWorkerGetColor() {
+        let formElements = document.getElementById("addForm");
+        let worker;
+
+        if (typeof Worker !== undefined) {
+          if (typeof worker == "undefined") {
+            worker = new Worker("workerRGB.js");
+          }
+
+          console.log("Sending message to worker");
+
+          let message = {
+            name: formElements[1].value,
+            lastName: formElements[2].value,
+            email: formElements[4].value,
+            address: formElements[6].value,
+            url: formElements[8].value,
+          };
+
+          worker.postMessage(message);
+
+          worker.onmessage = (event) => {
+            console.log("Received message from worker");
+
+            // Set paragraph
+            document.getElementById("rgbData").innerHTML = JSON.stringify(
+              event.data
+            );
+            document.getElementById(
+              "rgbData"
+            ).style = `color: rgb(${event.data.R}, ${event.data.G}, ${event.data.B});`;
+
+            // Set img
+            document.getElementById("imgPlaceholder").src =
+              formElements[8].value;
+            document.getElementById("imgPlaceholder").style =
+              "position: relative;";
+
+            // Set img overlay
+            document.getElementById(
+              "imgOpacity"
+            ).style = `background-color: rgba(${event.data.R}, ${event.data.G}, ${event.data.B}, 0.5); z-index: 1; position: absolute; width: 100%; height: 100%;`;
+          };
+        } else {
+          document.getElementById("rgbData").innerHTML =
+            "This browser doesnt support web workers!";
+        }
+      }
+
+      function fillFormWithData(data) {
+        fields = [
+          "name",
+          "lastName",
+          "age",
+          "email",
+          "pesel",
+          "address",
+          "phoneNumber",
+        ];
+
+        let formElements = document.getElementById("addForm");
+
+        console.log(data);
+
+        for (field of fields) {
+          if (field in data) {
+            console.log(document.getElementById(field + "Input").value);
+            document.getElementById(field + "Input").value = data[field];
+          }
+        }
+      }
+
+      function generateTableHead(table, data) {
+        let thead = table.createTHead();
+        let row = thead.insertRow();
+
+        // Create id column
+        let th = document.createElement("th");
+        let text = document.createTextNode("id");
+        th.appendChild(text);
+        row.appendChild(th);
+
+        for (let key of data) {
+          let th = document.createElement("th");
+          let text = document.createTextNode(key);
+          th.appendChild(text);
+          row.appendChild(th);
+        }
+      }
+
+      function generateTable(table, filterItems = []) {
+        let objectStore = db.transaction("client").objectStore("client");
+
+        objectStore.openCursor().onsuccess = function (event) {
+          var cursor = event.target.result;
+
+          if (cursor) {
+            if (filterItems.length > 0 && filterItems[0] !== "") {
+              let exists = false;
+              for (let i = 0; i < filterItems.length; i++) {
+                const element = filterItems[i];
+
+                if (Object.values(cursor.value).includes(element)) {
+                  exists = true;
+                }
+              }
+
+              if (!exists) {
+                cursor.continue();
+                return;
+              }
+            }
+
+            let row = table.insertRow();
+            let cell = row.insertCell();
+            let text = document.createTextNode(cursor.key);
+            cell.appendChild(text);
+            for (const [key, value] of Object.entries(cursor.value)) {
+              let cell = row.insertCell();
+              let text = document.createTextNode(value);
+              cell.appendChild(text);
+            }
+
+            cell = row.insertCell();
+
+            let removeButton = document.createElement("button");
+            removeButton.setAttribute("id", "removeButton" + cursor.key);
+            removeButton.setAttribute("onclick", `remove(${cursor.key})`);
+            removeButton.innerHTML = "remove";
+            cell.appendChild(removeButton);
+
+            let editButton = document.createElement("button");
+            editButton.setAttribute("id", "editButton" + cursor.key);
+            editButton.setAttribute("onclick", `fillEditData(${cursor.key})`);
+            editButton.innerHTML = "edit";
+            cell.appendChild(editButton);
+
+            cursor.continue();
+          } else {
+            console.log("No more data");
+          }
+        };
+      }
+
+      function drawTable(filterItems) {
+        if (document.getElementById("tbody") !== null) {
+          document.querySelector("#tbody").remove();
+        }
+
+        let table = document.createElement("table");
+        table.setAttribute("id", "tbody");
+        let data = Object.keys(clientData[0]);
+        generateTable(table, filterItems);
+        generateTableHead(table, data);
+        document.getElementById("tableDiv").appendChild(table);
+      }
+
+      function insertRandomCell() {
+        minAge = Math.ceil(18);
+        maxAge = Math.floor(100);
+
+        var request = db
+          .transaction(["client"], "readwrite")
+          .objectStore("client")
+          .add({
+            name: NAMES[Math.floor(Math.random() * NAMES.length)],
+            lastName: SURNAMES[Math.floor(Math.random() * SURNAMES.length)],
+            age: `${Math.floor(Math.random() * (maxAge - minAge) + minAge)}`,
+            email: `${NAMES[
+              Math.floor(Math.random() * NAMES.length)
+            ].toLowerCase()}@gmail.com`,
+            pesel: `${Math.floor(10000000000 + Math.random() * 90000000000)}`,
+            address: ADDRESSES[Math.floor(Math.random() * ADDRESSES.length)],
+            phoneNumber: `${Math.floor(100000000 + Math.random() * 700000000)}`,
+          });
+
+        request.onsuccess = function (event) {
+          console.log("Client added");
+          drawTable();
+        };
+
+        request.onerror = function (event) {
+          alert(
+            "Unable to add data\r\ user with that (email | pesel | phoneNumber) aready exist in your database! Those are the unique fileds"
+          );
+        };
+      }
+    </script>
+  </body>
+</html>
