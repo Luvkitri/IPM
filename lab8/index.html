@@ -84,15 +84,12 @@
     <button onclick="webWorkerGetColor()">WebWorker Get Color</button>
     <br />
     <p id="rgbData"></p>
-    <div id="showRGB" style="position: relative; display: table;">
-      <div id="imgOpacity"></div>
-      <img id="imgPlaceholder" />
-    </div>
+    <canvas width="100" height="100"></canvas>
+    <img id="imgPlaceholder"/>
     <br />
     <button onclick="return insertRandomCell()">Insert Random Cell</button>
     <br />
     <br />
-
     <div id="searchFiled">
       <input id="searchBar" name="search" type="text" placeholder="Search..." />
       <button onclick="return search(event)">Search</button>
@@ -208,6 +205,9 @@
         objectStore.createIndex("url", "url", {
           unique: false,
         });
+        objectStore.createIndex("img", "img", {
+          unique: false,
+        });
 
         for (var i in clientData) {
           objectStore.add(clientData[i]);
@@ -218,6 +218,9 @@
         event.preventDefault();
 
         var formElements = document.getElementById("addForm");
+
+        let canvas = document.querySelector("canvas");
+        let imgObj = canvas.toDataURL('image/jpeg');
 
         var request = db
           .transaction(["client"], "readwrite")
@@ -231,6 +234,7 @@
             address: formElements[6].value,
             phoneNumber: formElements[7].value,
             url: formElements[8].value,
+            img: imgObj,
           });
 
         request.onsuccess = function (event) {
@@ -243,6 +247,33 @@
           alert("error");
         };
       }
+
+      function displayImgOnCanvas(canvas, ctx, rgbData) {
+        let img = new Image();
+        img.setAttribute('crossorigin', 'anonymous');
+        img.onerror = (error) => {
+            console.error('Failed loading a photo');
+            console.error(error);
+        };
+        img.onload = () => {
+          ctx.drawImage(
+            img,
+            0,
+            0,
+            100,
+            100
+          );
+          ctx.fillStyle = `rgba(${rgbData.R}, ${rgbData.G}, ${rgbData.B}, 0.5)`;
+          ctx.fillRect(0, 0, 100, 100);
+        };
+        img.src = document.getElementById("photoURLInput").value;
+      }
+
+      document
+        .getElementById("photoURLInput")
+        .addEventListener("change", (event) => {
+          webWorkerGetColor();
+        });
 
       function search(event) {
         event.preventDefault();
@@ -356,6 +387,8 @@
           document.getElementById("phoneNumberInput").value = data.phoneNumber;
           document.getElementById("photoURLInput").value = data.url;
         };
+
+        webWorkerGetColor();
       }
 
       function webWorkerSwapCase() {
@@ -426,13 +459,16 @@
             // Set img
             document.getElementById("imgPlaceholder").src =
               formElements[8].value;
-            document.getElementById("imgPlaceholder").style =
-              "position: relative;";
+            document.getElementById("imgPlaceholder").style = "display: none;";
 
             // Set img overlay
-            document.getElementById(
-              "imgOpacity"
-            ).style = `background-color: rgba(${event.data.R}, ${event.data.G}, ${event.data.B}, 0.5); z-index: 1; position: absolute; width: 100%; height: 100%;`;
+            // document.getElementById(
+            //   "imgOpacity"
+            // ).style = `background-color: rgba(${event.data.R}, ${event.data.G}, ${event.data.B}, 0.5); z-index: 1; position: absolute; width: 100%; height: 100%;`;
+            let canvas = document.querySelector("canvas");
+            let ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, 100, 100);
+            displayImgOnCanvas(canvas, ctx, event.data);
           };
         } else {
           document.getElementById("rgbData").innerHTML =
@@ -565,6 +601,7 @@
             pesel: `${Math.floor(10000000000 + Math.random() * 90000000000)}`,
             address: ADDRESSES[Math.floor(Math.random() * ADDRESSES.length)],
             phoneNumber: `${Math.floor(100000000 + Math.random() * 700000000)}`,
+            url: "https://jpeg.org/images/jpegsystems-home.jpg",
           });
 
         request.onsuccess = function (event) {
