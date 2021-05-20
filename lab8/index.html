@@ -71,7 +71,6 @@
         class="data"
         type="url"
         name="photoURL"
-        pattern="https://.*"
         required
       />
       <br />
@@ -90,8 +89,7 @@
     <br />
     <button onclick="webWorkerSwapCase()">WebWorker Swap Case</button>
     <br />
-    <button onclick="webWorkerGetColor()">WebWorker Get Color</button>
-    <br />
+    <p id="errorPrompt"></p>
     <p id="rgbData"></p>
     <canvas width="100" height="100"></canvas>
     <img id="imgPlaceholder" src="" />
@@ -138,7 +136,7 @@
           pesel: "12345678901",
           address: "Zachodnia 1",
           phoneNumber: "500500200",
-          url: "https://i.stack.imgur.com/hOuSj.png",
+          url: "https://i.imgur.com/VYUs2wd.jpeg",
         },
         {
           name: "Marcin",
@@ -148,7 +146,7 @@
           pesel: "12345678902",
           address: "Zachodnia 2",
           phoneNumber: "500400200",
-          url: "https://i.stack.imgur.com/hOuSj.png",
+          url: "https://i.imgur.com/VYUs2wd.jpeg",
         },
       ];
 
@@ -243,7 +241,7 @@
             address: formElements[6].value,
             phoneNumber: formElements[7].value,
             url: formElements[8].value,
-            img: imgObj,
+            img: formElements[9].value,
           });
 
         request.onsuccess = function (event) {
@@ -259,19 +257,22 @@
 
       function displayImgOnCanvas(canvas, ctx, rgbData) {
         let img = new Image();
-        img.crossOrigin="anonymous";
-        img.src = document.getElementById("photoURLInput").value;
         img.onload = () => {
           ctx.drawImage(img, 0, 0, 100, 100);
           ctx.fillStyle = `rgba(${rgbData.R}, ${rgbData.G}, ${rgbData.B}, 0.5)`;
           ctx.fillRect(0, 0, 100, 100);
           document.getElementById("photoBlopInput").value =
             canvas.toDataURL("image/jpeg");
+          document.getElementById("errorPrompt").innerHTML = "";
         };
         img.onerror = (error) => {
           console.error("Failed loading a photo");
           console.error(error);
+          document.getElementById("errorPrompt").innerHTML =
+            "WRONG URL | CORS NOT SUPPORTED";
         };
+        img.crossOrigin = "anonymous";
+        img.src = document.getElementById("photoURLInput").value;
       }
 
       document
@@ -550,9 +551,16 @@
             let text = document.createTextNode(cursor.key);
             cell.appendChild(text);
             for (const [key, value] of Object.entries(cursor.value)) {
-              let cell = row.insertCell();
-              let text = document.createTextNode(value);
-              cell.appendChild(text);
+              if (key == "img") {
+                let cell = row.insertCell();
+                let img = document.createElement('img');
+                img.src = value;
+                cell.appendChild(img);
+              } else {
+                let cell = row.insertCell();
+                let text = document.createTextNode(value);
+                cell.appendChild(text);
+              }
             }
 
             cell = row.insertCell();
