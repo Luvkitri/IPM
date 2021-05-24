@@ -15,8 +15,7 @@
   </head>
   <body>
     <form id="addForm" onsubmit="return add(event)">
-      <label for="id">Id:</label>
-      <input id="idInput" name="id" type="number" />
+      <input id="idInput" name="id" type="number" style="visibility: hidden;"/>
       <br />
       <label for="name">Name:</label>
       <input id="nameInput" class="data" name="name" type="text" required />
@@ -68,6 +67,7 @@
       <input id="submitBtn" type="submit" value="Add entry" />
     </form>
     <button id="editBtn" onclick="editData(event)" disabled>Edit entry</button>
+    <button id="cancelBtn" onclick="cancelEdit(event)" disabled>Cancel Edit</button>
     <div id="jsonForm"></div>
     <br />
     <br />
@@ -238,16 +238,6 @@
           drawTable(event.target.value.split(" "));
         });
 
-      document.getElementById("idInput").addEventListener("input", (event) => {
-        if (event.target.value) {
-          document.getElementById("submitBtn").disabled = true;
-          document.getElementById("editBtn").disabled = false;
-        } else {
-          document.getElementById("submitBtn").disabled = false;
-          document.getElementById("editBtn").disabled = true;
-        }
-      });
-
       function remove(id) {
         let request = db
           .transaction(["client"], "readwrite")
@@ -306,9 +296,17 @@
         };
       }
 
+      function cancelEdit(event) {
+        event.preventDefault();
+        document.getElementById("editBtn").disabled = true;
+        document.getElementById("cancelBtn").disabled = true;
+        document.getElementById("submitBtn").disabled = false;
+      }
+
       function fillEditData(id) {
         document.getElementById("submitBtn").disabled = true;
         document.getElementById("editBtn").disabled = false;
+        document.getElementById("cancelBtn").disabled = false;
 
         var objectStore = db
           .transaction(["client"], "readwrite")
