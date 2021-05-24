@@ -15,7 +15,7 @@
   </head>
   <body>
     <form id="addForm" onsubmit="return add(event)">
-      <input id="idInput" name="id" type="number" style="visibility: hidden;"/>
+      <input id="idInput" name="id" type="number" style="visibility: hidden" />
       <br />
       <label for="name">Name:</label>
       <input id="nameInput" class="data" name="name" type="text" required />
@@ -67,7 +67,9 @@
       <input id="submitBtn" type="submit" value="Add entry" />
     </form>
     <button id="editBtn" onclick="editData(event)" disabled>Edit entry</button>
-    <button id="cancelBtn" onclick="cancelEdit(event)" disabled>Cancel Edit</button>
+    <button id="cancelBtn" onclick="cancelEdit(event)" disabled>
+      Cancel Edit
+    </button>
     <div id="jsonForm"></div>
     <br />
     <br />
@@ -360,10 +362,13 @@
             if (filterItems.length > 0 && filterItems[0] !== "") {
               let exists = false;
               for (let i = 0; i < filterItems.length; i++) {
-                const element = filterItems[i];
-
-                if (Object.values(cursor.value).includes(element)) {
-                  exists = true;
+                const element = filterItems[i].toLowerCase();
+                if (element === "") continue;
+                for (objValue of Object.values(cursor.value)) {
+                  if (objValue.toLowerCase().includes(element)) {
+                    exists = true;
+                    break;
+                  }
                 }
               }
 
@@ -411,6 +416,7 @@
 
         let table = document.createElement("table");
         table.setAttribute("id", "tbody");
+
         let data = Object.keys(clientData[0]);
         generateTable(table, filterItems);
         generateTableHead(table, data);
@@ -424,12 +430,22 @@
         let formElements = document.getElementById("addForm");
 
         formElements[1].value = NAMES[Math.floor(Math.random() * NAMES.length)];
-        formElements[2].value = SURNAMES[Math.floor(Math.random() * SURNAMES.length)];
-        formElements[3].value = `${Math.floor(Math.random() * (maxAge - minAge) + minAge)}`;
-        formElements[4].value = `${NAMES[ Math.floor(Math.random() * NAMES.length)].toLowerCase()}@gmail.com`;
-        formElements[5].value = `${Math.floor(10000000000 + Math.random() * 90000000000)}`;
-        formElements[6].value =  ADDRESSES[Math.floor(Math.random() * ADDRESSES.length)];
-        formElements[7].value = `${Math.floor(100000000 + Math.random() * 700000000)}`;
+        formElements[2].value =
+          SURNAMES[Math.floor(Math.random() * SURNAMES.length)];
+        formElements[3].value = `${Math.floor(
+          Math.random() * (maxAge - minAge) + minAge
+        )}`;
+        formElements[4].value = `${NAMES[
+          Math.floor(Math.random() * NAMES.length)
+        ].toLowerCase()}@gmail.com`;
+        formElements[5].value = `${Math.floor(
+          10000000000 + Math.random() * 90000000000
+        )}`;
+        formElements[6].value =
+          ADDRESSES[Math.floor(Math.random() * ADDRESSES.length)];
+        formElements[7].value = `${Math.floor(
+          100000000 + Math.random() * 700000000
+        )}`;
       }
     </script>
   </body>
