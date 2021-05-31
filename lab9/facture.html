@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      #dateField {
+        text-align: right;
+      }
+      #buyerData {
+        width: 200;
+        padding: 10;
+        float: right;
+      }
+      #sellerData {
+        width: 200;
+        padding: 10;
+        float: left;
+      }
+      #title {
+        text-align: center;
+      }
+      #container {
+        display: block;
+      }
+      #products {
+        clear: left;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="title">Faktura</h1>
+    <div id="container">
+      <div id="dateField">
+        <p>Łódź</p>
+        <p id="saleDate"></p>
+        <p id="creationDate"></p>
+      </div>
+      <div id="sellerData">
+        <h4>Sprzedawca</h4>
+        <p>Diego Mirabelka</p>
+        <p>PC SHOP 2000</p>
+      </div>
+      <div id="buyerData">
+        <h4>Nabywca</h4>
+        <p id="buyerName"></p>
+        <p id="buyerAddress"></p>
+      </div>
+    </div>
+
+    <div id="products">
+      <ol id="productList"></ol>
+    </div>
+    <div>
+      <p><b>Suma:</b></p>
+    </div>
+
+    <script>
+      window.onload = (event) => {
+        let d = new Date();
+
+        saleDate = document.getElementById("saleDate");
+        creationDate = document.getElementById("creationDate");
+
+        dateNode = document.createTextNode(d);
+
+        saleDate.appendChild(dateNode);
+        creationDate.appendChild(dateNode);
+      };
+    </script>
+  </body>
+</html>
