@@ -478,12 +478,34 @@
       function generateFacture() {
         let newWindow = window.open("./facture.html");
         newWindow.onload = () => {
+          let d = new Date();
+
+          saleDate = newWindow.document.getElementById("saleDate");
+          creationDate = newWindow.document.getElementById("creationDate");
+
+          dateNode = newWindow.document.createTextNode(d);
+
+          saleDate.appendChild(dateNode);
+          creationDate.appendChild(dateNode);
+          let sum = 0;
           for (let product of productList) {
             let node = document.createElement("LI");
             let textNode = document.createTextNode(product);
             node.appendChild(textNode);
             newWindow.document.getElementById("productList").appendChild(node);
+            let values = product.split(" ");
+
+            sum += parseInt(values[1]);
           }
+          let textNode = document.createTextNode(sum);
+          newWindow.document.getElementById("sum").appendChild(textNode);
+
+          let userForm = document.getElementById("addForm");
+          console.log(userForm[1].value + ' ' + userForm[2].value);
+          let textNode1 = document.createTextNode(userForm[1].value + ' ' + userForm[2].value);
+          newWindow.document.getElementById("buyerName").appendChild(textNode1);
+          let textNode2 = document.createTextNode(userForm[6].value);
+          newWindow.document.getElementById("buyerAddress").appendChild(textNode2);
         };
       }
     </script>

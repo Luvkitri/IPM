@@ -51,24 +51,12 @@
     </div>
 
     <div id="products">
+      <h4>Produkty:</h4>
       <ol id="productList"></ol>
     </div>
     <div>
       <p><b>Suma:</b></p>
+      <p id="sum"></p>
     </div>
-
-    <script>
-      window.onload = (event) => {
-        let d = new Date();
-
-        saleDate = document.getElementById("saleDate");
-        creationDate = document.getElementById("creationDate");
-
-        dateNode = document.createTextNode(d);
-
-        saleDate.appendChild(dateNode);
-        creationDate.appendChild(dateNode);
-      };
-    </script>
   </body>
 </html>
